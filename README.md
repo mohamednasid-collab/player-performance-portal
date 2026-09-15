@@ -1,29 +1,25 @@
-# CoachLab — Player Performance Portal
+# CoachPortal — Player Performance Portal
 
-A proper React + TypeScript + Supabase rebuild of the original single-file browser-storage portal.
+Updated React + TypeScript + Supabase version styled to match the supplied CoachPortal dashboard reference.
 
-## Included
-- Supabase Auth
-- Coach / Manager / Player login selector
-- Admin-created user accounts with temporary password
-- Team management
-- Player management
-- Training sessions
-- Assessments
-- Development plans
-- Supabase Row Level Security
-- Vercel SPA routing
+## What changed
+- Dark professional left navigation
+- Global search/header area
+- Dashboard summary cards
+- Team overview panel
+- Upcoming training sessions panel
+- Player performance table
+- Assessment trend chart
+- Responsive tablet/mobile layout
+- Supabase-backed Teams, Players, Training Sessions and Assessments
+- Existing Supabase login retained
 
-## Setup
-1. Copy `.env.example` to `.env`.
-2. Run `npm install`.
-3. Run `npm run dev`.
-4. In Vercel, add:
+## Deploy
+1. Upload all files to the root of your GitHub repository.
+2. Keep the Vercel Framework Preset set to `Vite`.
+3. Keep these Vercel environment variables:
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_PUBLISHABLE_KEY`
-5. Deploy.
+4. Vercel should build with `npm run build` and output `dist`.
 
-The database schema and `admin-create-user` Edge Function have already been created/deployed in the connected Supabase project `player-performance-portal`.
-
-## Important
-The original uploaded `index.html` was a compiled production bundle. This project recreates the visible portal functionality as maintainable source files rather than trying to de-minify that bundle.
+The existing live Supabase schema is reused. No database reset is required.
