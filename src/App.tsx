@@ -81,7 +81,7 @@ export default function App() {
   },[])
 
   const filteredTeams = useMemo(()=>teams.filter(t=>t.name.toLowerCase().includes(search.toLowerCase())),[teams,search])
-  const filteredPlayers = useMemo(()=>players.filter(p=>`${p.full_name} ${(p as Player & {nickname?:string|null}).nickname??''} ${p.position??''}`.toLowerCase().includes(search.toLowerCase())),[players,search])
+  const filteredPlayers = useMemo(()=>players.filter(p=>`${p.full_name} ${p.position??''}`.toLowerCase().includes(search.toLowerCase())),[players,search])
   const upcoming = useMemo(()=>[...sessions].filter(s=>new Date(s.session_date)>=new Date(new Date().toDateString())).sort((a,b)=>a.session_date.localeCompare(b.session_date)).slice(0,4),[sessions])
   const avgPerformance = assessments.length ? Math.round(assessments.reduce((s,a)=>s+averageAssessment(a),0)/assessments.length*10) : 0
   const playerRatings = useMemo(()=>players.map(p=>{
@@ -99,10 +99,6 @@ export default function App() {
   async function saveAssessment(e:React.FormEvent){e.preventDefault();setError('');try{await createAssessment({...assessmentForm,session_id:assessmentForm.session_id||null,comments:assessmentForm.comments||null});setModal(null);await loadAll()}catch(err){setError(err instanceof Error?err.message:'Could not save assessment')}}
 
   const teamName=(id:string)=>teams.find(t=>t.id===id)?.name??'Team'
-  const playerDisplayName=(player:Player)=>{
-    const nickname=(player as Player & {nickname?:string|null}).nickname?.trim()
-    return nickname?`${player.full_name} (${nickname})`:player.full_name
-  }
   const dateLabel=(d:string)=>new Date(`${d}T00:00:00`).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})
 
   const Dashboard = () => <>
@@ -132,7 +128,7 @@ export default function App() {
 
   const SessionsView = () => <section><div className="section-head"><div><h1>Training Sessions</h1><p>Plan, record and review training activity.</p></div><button className="primary-btn inline" onClick={()=>setModal('session')}><Plus size={16}/> New Session</button></div><div className="panel table-panel"><table><thead><tr><th>Date</th><th>Team</th><th>Session</th><th>Focus</th><th>Duration</th></tr></thead><tbody>{sessions.map(s=><tr key={s.id}><td>{dateLabel(s.session_date)}</td><td>{teamName(s.team_id)}</td><td><strong>{s.title}</strong></td><td>{s.focus||'—'}</td><td>{s.duration_minutes??'—'} min</td></tr>)}</tbody></table></div></section>
 
-  const PerformanceView = () => <section><div className="section-head"><div><h1>Player Performance</h1><p>Track player development across training assessments.</p></div><div className="button-pair"><button className="secondary-btn" onClick={()=>setModal('player')}><Plus size={16}/> Add Player</button><button className="primary-btn inline" onClick={()=>setModal('assessment')}><Plus size={16}/> New Assessment</button></div></div><div className="panel table-panel"><table><thead><tr><th>Player</th><th>Nickname</th><th>Team</th><th>Position</th><th>Assessments</th><th>Overall</th></tr></thead><tbody>{filteredPlayers.map(p=>{const r=playerRatings.find(x=>x.player.id===p.id);return <tr key={p.id}><td><strong>{p.full_name}</strong></td><td>{(p as Player & {nickname?:string|null}).nickname?.trim() || '—'}</td><td>{teamName(p.team_id)}</td><td>{p.position||'—'}</td><td>{r?.count??0}</td><td><b className={`rating ${(r?.avg??0)>=80?'good':(r?.avg??0)>=65?'mid':'low'}`}>{r?.avg||'—'}</b></td></tr>})}</tbody></table></div></section>
+  const PerformanceView = () => <section><div className="section-head"><div><h1>Player Performance</h1><p>Track player development across training assessments.</p></div><div className="button-pair"><button className="secondary-btn" onClick={()=>setModal('player')}><Plus size={16}/> Add Player</button><button className="primary-btn inline" onClick={()=>setModal('assessment')}><Plus size={16}/> New Assessment</button></div></div><div className="panel table-panel"><table><thead><tr><th>Player</th><th>Team</th><th>Position</th><th>Assessments</th><th>Overall</th></tr></thead><tbody>{filteredPlayers.map(p=>{const r=playerRatings.find(x=>x.player.id===p.id);return <tr key={p.id}><td><strong>{p.full_name}</strong></td><td>{teamName(p.team_id)}</td><td>{p.position||'—'}</td><td>{r?.count??0}</td><td><b className={`rating ${(r?.avg??0)>=80?'good':(r?.avg??0)>=65?'mid':'low'}`}>{r?.avg||'—'}</b></td></tr>})}</tbody></table></div></section>
 
   const SimpleView = ({title,copy}:{title:string;copy:string}) => <section><div className="section-head"><div><h1>{title}</h1><p>{copy}</p></div></div><div className="panel placeholder"><BarChart3 size={42}/><h2>{title}</h2><p>This section is ready for the next workflow you want to add.</p></div></section>
 
