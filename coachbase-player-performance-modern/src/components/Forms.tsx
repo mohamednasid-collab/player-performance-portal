@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import { BmiDisplay } from './BmiDisplay'
 import { Modal } from './Modal'
-import { createAssessment, createPlayer, createTeam, errorMessage, saveTrainingSession } from '../lib/data'
+import { createAssessment, savePlayer, createTeam, errorMessage, saveTrainingSession } from '../lib/data'
 import { metrics, ratingLabels } from '../lib/ratings'
 import type { Player, Team, TrainingSession } from '../types'
 export type FormRequest = { kind: 'team' | 'player' | 'session' | 'assessment'; teamId?: string; player?: Player; session?: TrainingSession }
@@ -9,6 +10,9 @@ export function EntityForm({ request, teams, players, sessions, onClose, onSaved
   const [teamId,setTeamId] = useState(request.player?.team_id ?? request.session?.team_id ?? request.teamId ?? '')
   const [playerId,setPlayerId] = useState(request.player?.id ?? '')
   const [sessionId,setSessionId] = useState('')
+  const [height,setHeight] = useState(request.player?.height_cm?.toString() ?? '')
+  const [weight,setWeight] = useState(request.player?.weight_kg?.toString() ?? '')
+  const [birthDate,setBirthDate] = useState(request.player?.date_of_birth ?? '')
   const { kind } = request
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault(); if (busy) return; setBusy(true); setError('')
@@ -23,7 +27,7 @@ export function EntityForm({ request, teams, players, sessions, onClose, onSaved
       }
       if (kind === 'player') {
         if (!text('full_name')) throw new Error('Enter the player’s name.')
-        await createPlayer({ team_id: teamId, full_name: text('full_name'), jersey_number: optional('jersey_number') === null ? null : Number(text('jersey_number')), position: optional('position'), date_of_birth: optional('date_of_birth'), preferred_foot: optional('preferred_foot'), notes: optional('notes') })
+        await savePlayer({ team_id: teamId, full_name: text('full_name'), jersey_number: optional('jersey_number') === null ? null : Number(text('jersey_number')), position: optional('position'), date_of_birth: optional('date_of_birth'), preferred_foot: optional('preferred_foot'), notes: optional('notes'), nickname: optional('nickname'), mobile_number: optional('mobile_number'), height_cm: height === '' ? null : Number(height), weight_kg: weight === '' ? null : Number(weight) }, request.player?.id)
       }
       if (kind === 'session') await saveTrainingSession({ team_id: teamId, session_date: text('date'), title: text('title'), focus: optional('focus'), duration_minutes: optional('duration') === null ? null : Number(text('duration')), notes: optional('notes') }, request.session?.id)
       if (kind === 'assessment') {
@@ -34,11 +38,23 @@ export function EntityForm({ request, teams, players, sessions, onClose, onSaved
       await onSaved(); onClose()
     } catch (err) { setError(errorMessage(err)) } finally { setBusy(false) }
   }
-  const title = kind === 'team' ? 'Add Team' : kind === 'player' ? 'Add Player' : kind === 'session' ? (request.session ? 'Edit Training Session' : 'New Training Session') : 'Assess Player'
+  const title = kind === 'team' ? 'Add Team' : kind === 'player' ? (request.player ? 'Edit Player' : 'Add Player') : kind === 'session' ? (request.session ? 'Edit Training Session' : 'New Training Session') : 'Assess Player'
   return <Modal title={title} onClose={onClose} busy={busy}><form onSubmit={submit}><fieldset disabled={busy} className="form-grid">
     {kind !== 'team' && <label>Team<select required value={teamId} disabled={!!request.player || !!request.session} onChange={e=>{setTeamId(e.target.value);setPlayerId('');setSessionId('')}}><option value="">Select team</option>{teams.map(t=><option key={t.id} value={t.id}>{t.name}</option>)}</select></label>}
     {kind === 'team' && <><label>Team name<input name="name" required maxLength={150}/></label><label>Age group<input name="age_group" placeholder="U14"/></label><label>Season<input name="season" placeholder="2026"/></label></>}
-    {kind === 'player' && <><label>Full name<input name="full_name" required maxLength={150}/></label><label>Jersey number<input name="jersey_number" type="number" min="0" step="1"/></label><label>Position<input name="position"/></label><label>Date of birth<input name="date_of_birth" type="date" max={new Date().toISOString().slice(0,10)}/></label><label>Preferred foot<select name="preferred_foot"><option value="">Not set</option><option>Right</option><option>Left</option><option>Both</option></select></label><label className="span-2">Notes<textarea name="notes"/></label></>}
+    {kind === 'player' && <>
+      <label>Name<input name="full_name" required maxLength={150} defaultValue={request.player?.full_name}/></label>
+      <label>Nick Name<input name="nickname" maxLength={100} defaultValue={request.player?.nickname ?? ''}/></label>
+      <label>Date of birth<input name="date_of_birth" type="date" max={new Date().toLocaleDateString('en-CA')} value={birthDate} onChange={e=>setBirthDate(e.target.value)}/></label>
+      <label>Mobile number<input name="mobile_number" type="tel" maxLength={40} autoComplete="tel" defaultValue={request.player?.mobile_number ?? ''}/></label>
+      <label>Position<input name="position" defaultValue={request.player?.position ?? ''}/></label>
+      <label>Preferred foot<select name="preferred_foot" defaultValue={request.player?.preferred_foot ?? ''}><option value="">Not set</option><option>Right</option><option>Left</option><option>Both</option></select></label>
+      <label>Height (cm)<input name="height_cm" type="number" min="0.01" max="300" step="0.01" inputMode="decimal" value={height} onChange={e=>setHeight(e.target.value)}/></label>
+      <label>Weight (kg)<input name="weight_kg" type="number" min="0.01" max="650" step="0.01" inputMode="decimal" value={weight} onChange={e=>setWeight(e.target.value)}/></label>
+      <div className="span-2"><BmiDisplay heightCm={height === '' ? null : Number(height)} weightKg={weight === '' ? null : Number(weight)} dateOfBirth={birthDate}/></div>
+      <label>Jersey number<input name="jersey_number" type="number" min="0" step="1" defaultValue={request.player?.jersey_number ?? ''}/></label>
+      <label className="span-2">Notes<textarea name="notes" defaultValue={request.player?.notes ?? ''}/></label>
+    </>}
     {(kind === 'session' || kind === 'assessment') && <label>Date<input name="date" type="date" required defaultValue={request.session?.session_date ?? new Date().toISOString().slice(0,10)}/></label>}
     {kind === 'session' && <><label>Title<input name="title" required defaultValue={request.session?.title}/></label><label>Focus<input name="focus" defaultValue={request.session?.focus ?? ''}/></label><label>Duration (minutes)<input name="duration" type="number" min="1" step="1" defaultValue={request.session?.duration_minutes ?? 90}/></label><label className="span-2">Notes<textarea name="notes" defaultValue={request.session?.notes ?? ''}/></label></>}
     {kind === 'assessment' && <><label>Player<select required value={playerId} disabled={!!request.player} onChange={e=>setPlayerId(e.target.value)}><option value="">Select player</option>{players.filter(p=>p.team_id===teamId).map(p=><option key={p.id} value={p.id}>{p.full_name}</option>)}</select></label><label>Session<select value={sessionId} onChange={e=>setSessionId(e.target.value)}><option value="">No linked session</option>{sessions.filter(s=>s.team_id===teamId).map(s=><option key={s.id} value={s.id}>{s.session_date} — {s.title}</option>)}</select></label>{metrics.map(k=><label key={k} className="capitalize">{k}<select name={k} required defaultValue=""><option value="" disabled>Select rating</option>{ratingLabels.map((label,i)=><option key={label} value={i+1}>{i+1} — {label}</option>)}</select></label>)}<label className="span-2">Comments<textarea name="comments"/></label></>}

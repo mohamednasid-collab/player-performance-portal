@@ -57,9 +57,21 @@ export async function createTeam(input: { name: string; age_group?: string; seas
   // The creator already has coach access through teams.created_by; no non-atomic membership insert.
   return data as Team
 }
-export async function createPlayer(input: Omit<Player, 'id' | 'linked_user_id' | 'active'>) {
-  const { data, error } = await supabase.from('players').insert({ ...input, full_name: input.full_name.trim(), linked_user_id: null, active: true }).select().single()
-  if (error) throw error
+export async function savePlayer(input: Omit<Player, 'id' | 'linked_user_id' | 'active'>, id?: string) {
+  if (!input.full_name.trim() || !input.team_id) throw new Error('Name and team are required.')
+  if (input.height_cm !== null && (!Number.isFinite(input.height_cm) || input.height_cm <= 0 || input.height_cm > 300)) throw new Error('Height must be greater than 0 and at most 300 cm.')
+  if (input.weight_kg !== null && (!Number.isFinite(input.weight_kg) || input.weight_kg <= 0 || input.weight_kg > 650)) throw new Error('Weight must be greater than 0 and at most 650 kg.')
+  const payload = { ...input, full_name: input.full_name.trim() }
+  const query = id
+    ? supabase.from('players').update(payload).eq('id', id).eq('team_id', input.team_id)
+    : supabase.from('players').insert({ ...payload, linked_user_id: null, active: true })
+  const { data, error } = await query.select().single()
+  if (error) {
+    if (error.code === '42501') throw new Error('Player save was denied. Apply the player_details_and_insert_visibility SQL migration, and confirm your Admin/Coach access to this team.')
+    if (error.code === '23505') throw new Error('That jersey number is already used in this team. Choose another number or leave it blank.')
+    if (error.code === 'PGRST204') throw new Error('The player profile fields are not installed yet. Run the player_details_and_insert_visibility SQL migration before saving.')
+    throw error
+  }
   return data as Player
 }
 export async function saveTrainingSession(input: Omit<TrainingSession, 'id' | 'created_by'>, id?: string) {

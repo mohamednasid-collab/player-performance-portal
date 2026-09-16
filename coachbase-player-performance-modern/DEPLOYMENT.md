@@ -1,10 +1,20 @@
 # Upgrade and deploy
 
-## 1. Upgrade the existing Supabase database
+## Upgrade from 2.1 / 2.1.1 to 2.2.0
+
+1. In the existing Supabase project's SQL Editor, run **`supabase/migrations/20260916062343_player_details_and_insert_visibility.sql`**. The earlier team/rating migration is already present on the connected project inspected for this fix; do not rerun it by itself, because it contains the original player read policy.
+2. Replace the GitHub project files with this ZIP's contents and redeploy on Vercel using the settings below.
+3. Sign in as Admin/authorized Coach. Add a player, open their profile, choose **Edit Player**, change height/weight and save. The displayed BMI updates automatically. Team Managers remain read-only.
+
+The new migration adds nullable `nickname`, `mobile_number`, `height_cm` and `weight_kg` columns, validates positive measurements, and fixes the player SELECT policy so `INSERT ... RETURNING` can return the newly created row. Existing players and ratings are preserved. Height is centimetres; weight is kilograms. BMI = weight / (height / 100)². Missing either measurement leaves BMI blank. No extra live writes or test players were created during development.
+
+Adult colors use the unrounded BMI: below 18.5 orange, 18.5–under 25 green, and 25+ red. The displayed value has two decimals. For under-20 players (and missing dates of birth), the value is shown without an adult category. This follows your chosen youth behavior and the [CDC adult BMI reference](https://www.cdc.gov/bmi/adult-calculator/bmi-categories.html).
+
+## 1. First installation on the existing schema
 
 1. Back up the database and pause assessment entry during the upgrade. The old frontend must stop writing 0–10 ratings before the conversion.
 2. Open the existing project's **SQL Editor** in Supabase.
-3. Run the entire file `supabase/migrations/20260916052019_team_access_five_point_ratings.sql` as one script. It requires the existing CoachPortal tables and enums. Do not run `tests/schema.sql`, reset the database, or recreate accounts.
+3. Run `supabase/migrations/20260916052019_team_access_five_point_ratings.sql` first, followed by `supabase/migrations/20260916062343_player_details_and_insert_visibility.sql`, each as a complete script. It requires the existing CoachPortal tables and enums. Do not run `tests/schema.sql`, reset the database, or recreate accounts.
 4. Deploy this frontend, then ask existing users to refresh their browser.
 
 The migration runs in a transaction. It copies original scores to the private table `private.assessment_ratings_before_five_point`, then converts **all existing old-scale scores** using `max(1, min(5, round(old_score / 2)))`. Examples: 0 → 1, 2 → 1, 5 → 3, 7 → 4, 10 → 5. Nulls stay null. This is a nearest-integer conversion because the new scale has five discrete choices. A private marker prevents conversion from running twice. Do not delete the marker and rerun the migration.

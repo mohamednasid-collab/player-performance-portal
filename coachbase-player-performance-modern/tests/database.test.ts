@@ -18,6 +18,12 @@ beforeAll(async()=>{
  insert into development_plans(team_id,player_id,title,created_by) values('${teamA}','${playerA}','A','${coach}'),('${teamB}','${playerB}','B','${admin}');`)
  const sql=readFileSync(new URL('../supabase/migrations/20260916052019_team_access_five_point_ratings.sql',import.meta.url),'utf8')
  await db.exec(sql);await db.exec(sql)
+ // Reproduce the reported PostgREST insert/select failure on the previous policy.
+ await as(admin)
+ await expect(db.query(`insert into players(team_id,full_name) values('${teamA}','Regression probe') returning *`)).rejects.toThrow(/row-level security/)
+ await db.exec('reset role;')
+ const upgrade=readFileSync(new URL('../supabase/migrations/20260916062343_player_details_and_insert_visibility.sql',import.meta.url),'utf8')
+ await db.exec(upgrade);await db.exec(upgrade)
 })
 beforeEach(async()=>{await db.exec('reset role;begin;')})
 afterEach(async()=>{await db.exec('rollback;reset role;')})
@@ -44,4 +50,16 @@ describe('migration and database authorization',()=>{
  it('linked player retains own access without a membership',async()=>{await db.exec(`delete from team_members where user_id='${playerUser}'`);await as(playerUser);expect((await db.query('select * from players')).rows).toHaveLength(1);expect((await db.query('select * from teams')).rows).toHaveLength(1)})
  it('anonymous role cannot read data',async()=>{await db.exec('set role anon');await expect(db.exec('select * from players')).rejects.toThrow(/permission denied/)})
  it('authenticated users cannot read migration backups',async()=>{await as(admin);await expect(db.exec('select * from private.assessment_ratings_before_five_point')).rejects.toThrow(/permission denied/)})
+})
+
+describe('player insert and edit regression',()=>{
+ it.each([admin,coach])('authorized role %s can insert and return a new player',async(user)=>{
+  await as(user)
+  const result=await db.query(`insert into players(team_id,full_name,nickname,mobile_number,height_cm,weight_kg) values('${teamA}','New Player','Ace','+960 7770000',180,75) returning full_name,nickname,height_cm,weight_kg`)
+  expect(result.rows).toEqual([{full_name:'New Player',nickname:'Ace',height_cm:'180.00',weight_kg:'75.00'}])
+ })
+ it('coach can edit and return existing player details',async()=>{await as(coach);expect((await db.query(`update players set nickname='Updated',height_cm=175,weight_kg=70 where id='${playerA}' returning nickname,height_cm`)).rows).toEqual([{nickname:'Updated',height_cm:'175.00'}])})
+ it('manager cannot edit an assigned player',async()=>{await as(manager);expect((await db.query(`update players set nickname='Denied' where id='${playerA}' returning id`)).rows).toHaveLength(0)})
+ it('coach cannot insert players into other teams',async()=>{await as(coach);await expect(db.query(`insert into players(team_id,full_name) values('${teamB}','Denied') returning *`)).rejects.toThrow(/row-level security/)})
+ it.each(['height_cm=0','height_cm=-5','height_cm=301','weight_kg=0','weight_kg=651'])('rejects invalid measurements: %s',async(assignment)=>{await as(admin);await expect(db.exec(`update players set ${assignment} where id='${playerA}'`)).rejects.toThrow(/check constraint/)})
 })

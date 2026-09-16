@@ -1,6 +1,15 @@
-# CoachPortal 2.1.1
+# CoachPortal 2.2.0
 
 React + TypeScript + Vite, using the existing Supabase project and login accounts.
+
+## Player update (2.2.0)
+
+- Fixes the RLS failure when adding a player and returning the saved row.
+- Admins and authorized Coaches can add players and edit them from **Player Profile → Edit Player**. Team Managers remain read-only.
+- Name, Nick Name, Date of birth, Mobile number, Position, Preferred foot, Height (cm), Weight (kg), and automatic BMI are included. Existing jersey number, notes, active status and account link are retained.
+- BMI updates while entering measurements and is recalculated from saved height/weight on the profile; it is not an independently editable or stale stored value.
+- Adult (20+) BMI: below 18.5 orange; 18.5–under 25 green; 25+ red. Youth BMI has no category, as requested. Missing date of birth also leaves the category neutral.
+- **Required:** run `supabase/migrations/20260916062343_player_details_and_insert_visibility.sql` before deploying this version. If the earlier rating/access migration is already installed, run only this new SQL file.
 
 ## Included changes
 

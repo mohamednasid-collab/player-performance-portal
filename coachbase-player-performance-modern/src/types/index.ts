@@ -23,6 +23,10 @@ export type Player = {
   team_id: string
   linked_user_id: string | null
   full_name: string
+  nickname: string | null
+  mobile_number: string | null
+  height_cm: number | null
+  weight_kg: number | null
   jersey_number: number | null
   position: string | null
   date_of_birth: string | null
