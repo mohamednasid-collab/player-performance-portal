@@ -1,0 +1,59 @@
+{
+  "technical": [
+    {"id":"ball_control","label":"Ball Control","description":"First touch, receiving and keeping the ball under pressure"},
+    {"id":"passing","label":"Passing","description":"Accuracy, weight and timing of passes"},
+    {"id":"dribbling","label":"Dribbling","description":"Ability to beat opponents and retain possession"},
+    {"id":"shooting","label":"Shooting","description":"Accuracy, power and shot selection"},
+    {"id":"finishing","label":"Finishing","description":"Ability to convert chances consistently"},
+    {"id":"weak_foot","label":"Weak Foot","description":"Confidence and effectiveness using weaker foot"},
+    {"id":"one_v_one_attacking","label":"1v1 Attacking","description":"Ability to create an advantage against a defender"},
+    {"id":"one_v_one_defending","label":"1v1 Defending","description":"Ability to contain or win the ball from an attacker"},
+    {"id":"ball_protection","label":"Ball Protection","description":"Using body position to protect possession"},
+    {"id":"futsal_techniques","label":"Futsal Techniques","description":"Sole control, quick touches, toe-poke, receiving on the move"}
+  ],
+  "tactical": [
+    {"id":"positioning","label":"Positioning","description":"Taking effective positions in and out of possession"},
+    {"id":"game_awareness","label":"Game Awareness","description":"Understanding what is happening around the player"},
+    {"id":"decision_making","label":"Decision Making","description":"Choosing when to pass, shoot, dribble or retain possession"},
+    {"id":"off_the_ball_movement","label":"Off-the-Ball Movement","description":"Creating passing options and space"},
+    {"id":"defensive_positioning","label":"Defensive Positioning","description":"Maintaining correct defensive shape and distance"},
+    {"id":"pressing","label":"Pressing","description":"Knowing when and how to press"},
+    {"id":"transition_to_attack","label":"Transition to Attack","description":"Reaction and movement immediately after winning possession"},
+    {"id":"transition_to_defence","label":"Transition to Defence","description":"Reaction immediately after losing possession"},
+    {"id":"rotation_understanding","label":"Rotation Understanding","description":"Understanding and executing futsal rotations"},
+    {"id":"space_management","label":"Space Management","description":"Creating, exploiting and closing space"},
+    {"id":"team_shape","label":"Team Shape","description":"Maintaining structure and connection with teammates"}
+  ],
+  "physical": [
+    {"id":"speed","label":"Speed","description":"Straight-line acceleration and running speed"},
+    {"id":"agility","label":"Agility","description":"Changing direction quickly and efficiently"},
+    {"id":"explosiveness","label":"Explosiveness","description":"Quick bursts, first steps and explosive actions"},
+    {"id":"endurance","label":"Endurance","description":"Maintaining performance throughout training/matches"},
+    {"id":"strength","label":"Strength","description":"Ability to compete physically and protect the ball"},
+    {"id":"balance","label":"Balance","description":"Staying controlled during challenges and technical actions"},
+    {"id":"coordination","label":"Coordination","description":"Body control and movement efficiency"},
+    {"id":"recovery","label":"Recovery","description":"Ability to recover between repeated high-intensity actions"}
+  ],
+  "mental": [
+    {"id":"concentration","label":"Concentration","description":"Staying focused throughout the session/match"},
+    {"id":"composure","label":"Composure","description":"Remaining calm under pressure"},
+    {"id":"confidence","label":"Confidence","description":"Willingness to take responsibility and perform actions"},
+    {"id":"resilience","label":"Resilience","description":"Response after mistakes, setbacks or conceding"},
+    {"id":"decision_speed","label":"Decision Speed","description":"How quickly the player reads and reacts to situations"},
+    {"id":"adaptability","label":"Adaptability","description":"Ability to adjust to tactical changes or different roles"},
+    {"id":"communication","label":"Communication","description":"Giving and receiving useful information"},
+    {"id":"competitive_mentality","label":"Competitive Mentality","description":"Desire to compete and influence the game"}
+  ],
+  "attitude": [
+    {"id":"effort","label":"Effort","description":"Work rate during training and matches"},
+    {"id":"discipline","label":"Discipline","description":"Following instructions and maintaining self-control"},
+    {"id":"coachability","label":"Coachability","description":"Listening to and applying coaching feedback"},
+    {"id":"teamwork","label":"Teamwork","description":"Supporting and cooperating with teammates"},
+    {"id":"respect","label":"Respect","description":"Behaviour towards teammates, coaches, opponents and officials"},
+    {"id":"training_commitment","label":"Training Commitment","description":"Seriousness and consistency in training"},
+    {"id":"responsibility","label":"Responsibility","description":"Taking ownership of performance and mistakes"},
+    {"id":"positive_behaviour","label":"Positive Behaviour","description":"Body language and response during difficult situations"},
+    {"id":"leadership","label":"Leadership","description":"Encouraging, organising and helping teammates"},
+    {"id":"professionalism","label":"Professionalism","description":"Punctuality, preparation and overall standards"}
+  ]
+}
