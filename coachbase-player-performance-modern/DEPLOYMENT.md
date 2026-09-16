@@ -63,3 +63,7 @@ Keep the existing `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` in the
 Production data conversion is not reversed by a Vercel rollback. Do not redeploy the old 0–10 frontend after conversion. The private score backup is available for a deliberate database recovery if necessary.
 
 References: [Vite on Vercel](https://vercel.com/docs/frameworks/frontend/vite), [GitHub deployments](https://vercel.com/docs/git/vercel-for-github), [Supabase row-level security](https://supabase.com/docs/guides/database/postgres/row-level-security).
+
+## Blank-screen fix (2.1.1)
+
+The previous deployed build had both Supabase environment values missing and threw before React started. This version bundles the original project’s public URL and publishable key as a fallback. If both Vercel variables are absent, no setup is needed. If overriding either value, set both values together and redeploy. The legacy `VITE_SUPABASE_ANON_KEY` is also accepted. Startup failures now display an error screen. Replace the repository files with this version and redeploy; no additional SQL is needed for this fix. The earlier team/rating migration is still required if not already applied.

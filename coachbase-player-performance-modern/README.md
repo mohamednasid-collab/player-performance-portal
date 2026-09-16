@@ -1,4 +1,4 @@
-# CoachPortal 2.1
+# CoachPortal 2.1.1
 
 React + TypeScript + Vite, using the existing Supabase project and login accounts.
 
@@ -33,7 +33,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Set the two Supabase values in `.env.local` to your existing project's URL and publishable key. The supplied example retains the original public configuration; never use a service-role key in the browser.
+The original public Supabase URL and publishable key are bundled as a fallback, so this project starts even when Vercel variables are absent. To override the project, set both Supabase values in `.env.local` or Vercel. The supplied example retains the original public configuration; never use a service-role key in the browser.
 
 ```sh
 npm run typecheck
