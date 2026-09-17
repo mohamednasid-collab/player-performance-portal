@@ -1,0 +1,12 @@
+-- Source-controlled schema notes for the live Supabase project.
+-- Live migrations applied:
+--   initial_player_performance_schema
+--   allow_team_creator_access
+--
+-- Tables:
+-- profiles, teams, team_members, players, training_sessions,
+-- assessments, development_plans
+--
+-- RLS is enabled on every public application table.
+-- Team creators, administrators, coaches/managers assigned to a team,
+-- and linked players receive access according to the live policies.

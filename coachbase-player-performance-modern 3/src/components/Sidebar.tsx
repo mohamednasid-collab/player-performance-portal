@@ -1,0 +1,7 @@
+import { BarChart3, CalendarDays, LayoutDashboard, MessageSquare, Settings, ShieldCheck, Users, UserRoundCheck } from 'lucide-react'
+import { NavLink } from 'react-router-dom'
+import type { Profile } from '../types'
+export function Sidebar({ profile }: { profile: Profile }) {
+  const items = [['/', 'Dashboard', LayoutDashboard], ['/teams', 'Teams', Users], ['/sessions', 'Training Sessions', CalendarDays], ['/players', 'Players', Users], ['/performance', 'Player Performance', BarChart3], ['/reports', 'Reports', UserRoundCheck], ['/messages', 'Messages', MessageSquare], ['/settings', 'Settings', Settings]] as const
+  return <aside className="sidebar"><div className="brand-row"><div className="brand-ball">⚽</div><div><div className="brand-title">CoachPortal</div><div className="brand-sub">Train. Track. Grow.</div></div></div><nav className="side-nav">{items.map(([to,label,Icon]) => <NavLink key={to} to={to} end={to==='/'} title={label} aria-label={label} className={({isActive})=>`side-link ${isActive?'active':''}`}><Icon size={20}/><span>{label}</span></NavLink>)}</nav><div className="sidebar-quote"><div className="quote-tag"><ShieldCheck size={16}/> Development first</div><div className="quote-copy">Better<br/>Players.<br/>Brighter<br/>Tomorrows.</div></div><div className="sidebar-user"><div className="user-avatar">{profile.full_name.charAt(0)}</div><div><strong>{profile.full_name}</strong><span>{profile.role.replace('_',' ')}</span></div></div></aside>
+}
